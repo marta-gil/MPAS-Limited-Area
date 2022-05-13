@@ -63,14 +63,18 @@ class RegionSpec:
         self._DEBUG_ = kwargs.get('DEBUG', 0)
         self._gen_spec = create_bound_method(PointsParser, self)
 
-    def gen_spec(self, fileName, *args, **kwargs):
+    def gen_spec(self, fileName=None, *args, **kwargs):
         """ Generate the specifications and return, name, in point and a list of points.
 
         Call the method we bound above, and then do any processing here
         to do things like convert coordinates to radians, or anything else
         we need to get return contract variables.
         
-        fileName - The file that specifies the region
+        fileName - The file that specifies the region (optional)
+
+        kwargs - can pass region.name, region.type, region.in_point and
+                the other arguments tu use directly (like for
+                example region.radius for region.type='circle')
 
         Return values:
             name     - The name of the region
@@ -80,7 +84,56 @@ class RegionSpec:
                        in counter-clockwise. ie: [lat1, lon1, lat2, lon2, ... , latN, lonN]
         """
 
-        self._gen_spec(fileName, *args, **kwargs)
+        print('Generating it :)')
+        print('Filename ' + str(fileName))
+        print(kwargs)
+        # I overwrite it if fileName is None
+        if fileName is not None:
+            # As I see it, this function assigns new attributes
+            # to the RegionSpec object by reading them from fileName
+            # (applies the PointsParser function)
+            # I can avoid it if instead I passed them as kwargs!
+            self._gen_spec(fileName, *args, **kwargs)
+            # Which things does it set?
+            # self.points = [] (empty or full for type=custom)
+            # self._DEBUG_ = kwargs.get('DEBUG', 0)
+            # self.points_file = open(file, 'r')
+            # self.name
+            # self.type = 'circle', 'ellipse', 'channel' or 'custom'
+            # self.in_point = [inlat, inlon]
+            # circle: self.radius
+            # ellipse: self.semimajor, self.semiminor, self.orientation
+            # channel: self.ulat, self.llat
+            # custom: self.points is filled with alternating lat/lon
+            #       coordinates of the Polygon vertices:
+            #       self.points = [lat0, lon0, lat1, lon1, ...]
+        else:
+            # Let me manually set it from kwargs! and everything can
+            # continue in exactly the same way
+            self.type = kwargs['region.type']
+            in_point = kwargs['region.in_point']
+            if isinstance(in_point, str):
+                in_point = in_point.split(',')
+            self.in_point = [float(x) for x in in_point]
+            self.name = kwargs.get('region.name', 'region')
+
+            if self.type == 'custom':
+                points = kwargs['region.points']
+                if isinstance(points, str):
+                    points = points.split(',')
+                self.points = [float(x) for x in points]
+            elif self.type == 'circle':
+                self.radius = float(kwargs['region.radius'])
+            elif self.type == 'ellipse':
+                self.semimajor = float(kwargs['region.semimajor'])
+                self.semiminor = float(kwargs['region.semiminor'])
+                self.orientation = float(kwargs['region.orientation'])
+            elif self.type == 'channel':
+                self.ulat = float(kwargs['region.ulat'])
+                self.llat = float(kwargs['region.llat'])
+            else:
+                print("ERROR. Passed an invalid points type: ", self.type)
+                sys.exit(-1)
 
         if self.type == 'custom':
             if self._DEBUG_ > 0:
