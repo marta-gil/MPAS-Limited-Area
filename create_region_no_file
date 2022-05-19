@@ -141,15 +141,20 @@ if __name__ == "__main__":
     ograph = args.ograph
 
     if oregion is not None:
-        pathregion = os.path.dirname(oregion)
-        os.system('mkdir -p ' + pathregion)
-        os.system('mv ' + region_fname + ' ' + oregion)
+        if oregion != region_fname:
+            pathregion = os.path.dirname(oregion)
+            if pathregion != '':
+                os.system('mkdir -p ' + pathregion)
+            os.system('mv ' + region_fname + ' ' + oregion)
         print('Region available in ' + oregion)
+
         if ograph is None:
             ograph = oregion.replace('.nc', '') + '.graph.info'
-        pathgraph = os.path.dirname(ograph)
-        os.system('mkdir -p ' + pathgraph)
-        os.system('mv ' + graph_fname + ' ' + ograph)
+        if ograph != graph_fname:
+            pathgraph = os.path.dirname(ograph)
+            if pathgraph != '':
+                os.system('mkdir -p ' + pathgraph)
+            os.system('mv ' + graph_fname + ' ' + ograph)
         print('Graph.info available in ' + ograph)
     else:
         print('Region available in ' + region_fname)
