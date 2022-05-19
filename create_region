@@ -23,7 +23,6 @@ if __name__ == "__main__":
     options = parser.add_argument_group('Options', "Options to generating the"
                                                    " MPAS limited area.")
 
-
     required.add_argument('points',
                           help='Points file specifying the MPAS regional area',
                           type=str)
