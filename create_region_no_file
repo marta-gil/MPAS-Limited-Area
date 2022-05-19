@@ -128,7 +128,7 @@ if __name__ == "__main__":
     print(kwargs)
 
     regional_area = LimitedArea(args.grid,
-                                None,
+                                args.points,
                                 format='NETCDF3_64BIT_OFFSET',
                                 **kwargs)
 
